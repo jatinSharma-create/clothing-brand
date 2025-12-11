@@ -1,14 +1,19 @@
 // lib/prismadb.ts
 
 import { PrismaClient } from '@prisma/client'
+import { PrismaPg } from '@prisma/adapter-pg'
+import { Pool } from 'pg'
+
+const connectionString = process.env.DATABASE_URL
+
+const pool = new Pool({ connectionString })
+const adapter = new PrismaPg(pool)
 
 declare global {
   var prisma: PrismaClient | undefined
 }
 
-const prismadb = globalThis.prisma || new PrismaClient({
-  datasourceUrl: process.env.DATABASE_URL
-})
+const prismadb = globalThis.prisma || new PrismaClient({ adapter })
 
 if (process.env.NODE_ENV !== 'production') globalThis.prisma = prismadb
 
